@@ -1,0 +1,9 @@
+Simple node.js patch for DIff Match Patch.
+Apply against the onobfuscated and non-minified version.
+Basically it creates an object and exports it so it can be require'd on node.js.
+
+
+Gleicon - 10/2010
+
+Original code:
+http://code.google.com/p/google-diff-match-patch/

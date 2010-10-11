@@ -1,0 +1,8 @@
+25a26,32
+> /*
+>  * Node.js add-on
+>  *
+>  */
+> 
+> exports.diff_match_patch = new diff_match_patch();
+> 
