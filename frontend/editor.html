@@ -1,0 +1,119 @@
+<html> 
+<head> 
+  <title>collaborative editor</title> 
+  <script type="text/javascript" language="javascript" src="diff_match_patch.js"></script> 
+  <script type="text/javascript" language="javascript" src="jquery-latest.js"></script> 
+  <script>
+    $(document).ready(function() {
+      var diff_buffer="";
+      var dmp = new diff_match_patch();
+      var ws;
+
+  if ("WebSocket" in window) {
+    console.log("Trying to connect...");
+    ws = new WebSocket("ws://localhost:8080/websession");
+
+    ws.onopen = function() {
+        console.log("connected");
+    };
+    
+    ws.onmessage = function (evt) {
+        var data = JSON.parse(evt.data);
+        console.log("> "+data.type);
+        if (data.type == "patch" && data.data != "") {
+          patch_receive(data.data);
+        }
+        if (data.type == "buffer") {
+          diff_buffer=data.data;
+          $("#editor_area").val(data.data);
+        }
+    };
+    ws.onerror = function(e) {
+      console.log(e);
+    }
+    ws.onclose = function() {
+        console.log("socket closed");
+    };
+
+  } else {
+    console.log('you have no websockets');
+    return;
+  }
+
+
+
+      diff_launch = function() {
+        var text2 = $('#editor_area').val();
+        var patch_text = '';
+       
+        var ms_start = (new Date).getTime();
+        var diff = dmp.diff_main(diff_buffer, text2, true);
+
+        var ms_end = (new Date).getTime();
+       
+        if (diff.length > 2) {
+          dmp.diff_cleanupSemantic(diff);
+        }
+       
+        var patch_list = dmp.patch_make(diff_buffer, text2, diff);
+        patch_text = dmp.patch_toText(patch_list);
+       
+        diff_buffer = text2;
+        ws.send(patch_text);
+        return true;
+      }
+
+      function patch_receive(diff_text) {
+        var text1 = $('#editor_area').val();
+        var patches = dmp.patch_fromText(diff_text);
+       
+        var ms_start = (new Date).getTime();
+        var results = dmp.patch_apply(patches, text1);
+        var ms_end = (new Date).getTime();
+       
+        document.getElementById('patchdatediv').innerHTML =
+            'Time: ' + (ms_end - ms_start) / 1000 + 's';
+            
+        $('#editor_area').val(results[0]); 
+        diff_buffer = results[0];
+
+        results = results[1];
+        var html = '';
+        for (var x = 0; x < results.length; x++) {
+          if (results[x]) {
+            html += '<LI><FONT COLOR="#009900">Ok</' + 'FONT>';
+          } else {
+            html += '<LI><FONT COLOR="#990000">Fail</' + 'FONT>';
+          }
+        }
+        document.getElementById('passfaildiv').innerHTML = html;
+      }
+      
+      $('#editor_area').keyup(diff_launch);
+  });
+  </script>
+</head> 
+ 
+<body> 
+<h1>Collaborative editor using diff, match and patch</h1> 
+ 
+ 
+<h3>Editor</h3> 
+
+<textarea id="editor_area" style="width: 100%" rows=30></textarea>
+
+<blockquote>
+<div id="diffoutputdiv"></div>
+</blockquote> 
+ 
+<div id="diffdatediv"></div> 
+ 
+<ol id="passfaildiv"></ol> 
+<div id="patchdatediv"></div> 
+ 
+<hr> 
+ 
+</body> 
+</html> 
+ 
+

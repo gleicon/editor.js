@@ -1,0 +1,21 @@
+Editor.js is a collaborative editor based on javascript technology both for frontend and for backend.
+Its a proof of concept to apply simple libraries and tools. There is no multi document/persistence for now.
+
+Based on
+  Node.js ( http://nodejs.org )
+  Diff Match Patch ( http://code.google.com/p/google-diff-match-patch/ )
+  A patch to Diff Match Patch to run from node.js (included, it's dead simple)
+  pubsub_ws ( http://github.com/gleicon/pubsub_ws )
+
+The algorithm is very simple. Each browser has an internal editing buffer which is diff'ed against the text area, and the resulting patches are broadcasted using websockets to everyone connected.
+
+Whenever the server receives a patch, it applies against its internal editing buffer, so new clientes will receive the full buffer.
+
+Running:
+
+- Place the contents from frontend/ folder in your webserver;
+- $ cd backend; node backend/collab_editor.js
+- Open some browsers. Make sure the backend port is open for your network
+
+
+Gleicon - 2010
