@@ -17,7 +17,6 @@ function add_patch(diff_text) {
   var patches = dmp.patch_fromText(diff_text);
   var results = dmp.patch_apply(patches, local_text_buffer);
   local_text_buffer = results[0]; 
-  console.log(local_text_buffer);
 }
 
 server = http.createServer(function (req, res) {
