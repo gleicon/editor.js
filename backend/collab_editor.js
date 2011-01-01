@@ -5,7 +5,7 @@ var sys = require("sys");
 var ws = require("./lib/node.ws.js/ws")
 var http = require("http");
 var qs = require("querystring");
-var dmp_lib = require("./lib/diff_match_patch_node.js");
+var dmp_lib = require("./lib/diff_match_patch_node");
 
 sys.puts('Initializing ws server');
 
