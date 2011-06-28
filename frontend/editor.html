@@ -1,44 +1,55 @@
 <html> 
 <head> 
   <title>collaborative editor</title> 
+  <link type="text/css" rel="stylesheet" href="jquery-ui.css" />
+  <link type="text/css" rel="stylesheet" href="ui.notify.css" /> 
   <script type="text/javascript" language="javascript" src="diff_match_patch.js"></script> 
   <script type="text/javascript" language="javascript" src="jquery-latest.js"></script> 
+  <script type="text/javascript" language="javascript" src="jquery-ui.js"></script>
+  <script type="text/javascript" language="javascript" src="jquery.notify.js" ></script>
+
   <script>
-    $(document).ready(function() {
-      var diff_buffer="";
-      var dmp = new diff_match_patch();
-      var ws;
+	
+	$(document).ready(function() {
+      	var diff_buffer="";
+      	var dmp = new diff_match_patch();
+		var ws;
+		var $container = $("#container").notify();
+		
+		function create( template, vars, opts ){
+			return $container.notify("create", template, vars, opts);
+		}
+		
+		
+		create("default", { text:'Initializing Collaborative Editor'}, {expires: 1000});
+		
+  		if ("WebSocket" in window) {
+    		console.log("Trying to connect...");
+    		ws = new WebSocket("ws://localhost:8080/websession");
 
-  if ("WebSocket" in window) {
-    console.log("Trying to connect...");
-    ws = new WebSocket("ws://localhost:8080/websession");
-
-    ws.onopen = function() {
-        console.log("connected");
-    };
+    		ws.onopen = function() { console.log("connected"); };
     
-    ws.onmessage = function (evt) {
-        var data = JSON.parse(evt.data);
-        console.log("> "+data.type);
-        if (data.type == "patch" && data.data != "") {
-          patch_receive(data.data);
-        }
-        if (data.type == "buffer") {
-          diff_buffer=data.data;
-          $("#editor_area").val(data.data);
-        }
-    };
-    ws.onerror = function(e) {
-      console.log(e);
-    }
-    ws.onclose = function() {
-        console.log("socket closed");
-    };
+    		ws.onmessage = function (evt) {
+        		var data = JSON.parse(evt.data);
+        		console.log("> "+data.type);
+        		if (data.type == "patch" && data.data != "") { patch_receive(data.data); }
+        		if (data.type == "buffer") {
+          			diff_buffer=data.data;
+          			$("#editor_area").val(data.data);
+        		}
+				if (data.type == "join") {
+					client = data.data;
+					create("default", { text:client + ' joined session'}, {expires: 1000});
+				}
+    		};
 
-  } else {
-    console.log('you have no websockets');
-    return;
-  }
+    		ws.onerror = function(e) { console.log(e); }
+    		ws.onclose = function() { console.log("socket closed"); };
+
+  		} else {
+    		console.log('you have no websockets');
+    		return;
+  		}
 
 
 
@@ -95,24 +106,26 @@
 </head> 
  
 <body> 
-<h1>Collaborative editor using diff, match and patch</h1> 
- 
- 
-<h3>Editor</h3> 
+	<h1>Collaborative editor using diff, match and patch</h1> 
+	<div id="container" style="display:none">
+		<div id="default">
+			<p>#{text}</p>
+		</div>
+	</div>
 
-<textarea id="editor_area" style="width: 100%" rows=30></textarea>
+	<h3>Editor</h3> 
 
-<blockquote>
-<div id="diffoutputdiv"></div>
-</blockquote> 
+	<textarea id="editor_area" style="width: 100%" rows=30></textarea>
+
+	<blockquote>
+		<div id="diffoutputdiv"></div>
+	</blockquote> 
  
-<div id="diffdatediv"></div> 
+	<div id="diffdatediv"></div> 
  
-<ol id="passfaildiv"></ol> 
-<div id="patchdatediv"></div> 
- 
-<hr> 
- 
+	<ol id="passfaildiv"></ol> 
+	<div id="patchdatediv"></div> 
+   
 </body> 
 </html> 
  

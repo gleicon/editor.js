@@ -45,6 +45,10 @@ ws_server = ws.createServer(function (websocket) {
       o['type'] = 'buffer';
       o['data'] = local_text_buffer;
       websocket.write(JSON.stringify(o));
+
+      o['type'] = 'join';
+      o['data'] = websocket.remoteAddress;
+			e_msg.emit('message', o);
     });
 
     var l = function(m) { 
