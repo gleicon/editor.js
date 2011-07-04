@@ -1,3 +1,8 @@
+07 Jul 2011
+
+- Fixed caret position, using jquery.caret
+
+
 28 Jun 2011
 
 - added a new message type: join
