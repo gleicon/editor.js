@@ -7,6 +7,7 @@
   <script type="text/javascript" language="javascript" src="jquery-latest.js"></script> 
   <script type="text/javascript" language="javascript" src="jquery-ui.js"></script>
   <script type="text/javascript" language="javascript" src="jquery.notify.js" ></script>
+  <script type="text/javascript" language="javascript" src="jquery.caret.js"></script>
 
   <script>
 	
@@ -84,8 +85,16 @@
        
         document.getElementById('patchdatediv').innerHTML =
             'Time: ' + (ms_end - ms_start) / 1000 + 's';
-            
-        $('#editor_area').val(results[0]); 
+
+        // preserve cursor position    
+		var position = $('#editor_area').caret();
+		console.log('position: '+position);
+		
+        $('#editor_area').val(results[0]);
+ 
+		$('#editor_area').caret(position);
+		
+		
         diff_buffer = results[0];
 
         results = results[1];
